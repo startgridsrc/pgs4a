@@ -34,7 +34,7 @@ The shared libraries in the *libs* folder are built by this [rapt](https://githu
 1. If the app installs, but crashes immediately, use *adb logcat* to find out why. Navigate to *android-sdk/platform-tools* and run `./adb logcat`. Open your app, and when it crashes, press *Ctrl + C* to stop logging, and look for errors. Your project folder has to contain a file called *main.py*, so you may have to rename one of your files and try again.
 
 The original instructions can be found [here](https://github.com/startgridsrc/rapt/blob/master/doc/android-packaging.rst).
-These are the original instructions which are old but detailed, and most of it is probably still fine. I plan to to create new instructions later.
+These are the original instructions which are old but detailed, and most of it is probably still fine. You'll find handy info on using the android module in Python, to make your game handle the back button, and detect app switching (so you know when to call your savegame function). I plan to to create new instructions later.
 
 # license
 The Pygame Subset for Android is licensed under the GNU Lesser General Public License. To the best of our knowledge, Pygame, SDL, and all other dependences are licensed under compatible licenses.
