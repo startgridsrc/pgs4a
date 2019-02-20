@@ -21,6 +21,8 @@ Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the consta
 * adaptive icon (api 26+)
 * additional 64-bit libraries
 
+The shared libraries in the *libs* folder are built by this [rapt](https://github.com/startgridsrc/rapt) toolchain. This toolchain actually builds an entire pgs4a distribution, like this repository, but it's not as well maintained as this one. The shared libraries are simply copied into this (better maintained) repository. 
+
 # instructions
 1. Clone this repository (or download it as zip and extract it somewhere)
 1. Go into the folder, where you'll find the file *android.py* and some other files and folders. Create a new folder here and put all your game files in it (or copy a folder to this place). From now on, this folder will be refered as *yourproject* in the instructions below.
@@ -40,14 +42,15 @@ The Pygame Subset for Android is licensed under the GNU Lesser General Public Li
 The Pygame Subset for Android is by:
 
 Tom Rothamel
+
 Patrick Dawson
+
 It integrates code from an number of projects, including:
 
-Python-for-android
-Pygame
-SDL (including Pelya's Android port)
-Python
-Jtar
-Jinja2
-Colorama
-
+* Python-for-android
+* Pygame
+* SDL (including Pelya's Android port)
+* Python
+* Jtar
+* Jinja2
+* Colorama
