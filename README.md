@@ -1,6 +1,6 @@
 # pgs4a
 An evolution of the deprecated Pygame Subset for Android.
-Pgs4a was made by Tom Rothamel and others, using Kivy's *python-for-android* packager to make Pygame games run on android.
+Pgs4a was made by Tom Rothamel, Patrick Dawson and others, using Kivy's *python-for-android* packager to make Pygame games run on android.
 He developed pgs4a until 2013 until he moved on with his other projects.
 Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the constantly evolving android environment. It's an easy way to port your Pygame to your mobile devices!
 
@@ -33,3 +33,21 @@ Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the consta
 
 The original instructions can be found [here](https://github.com/startgridsrc/rapt/blob/master/doc/android-packaging.rst).
 These are the original instructions which are old but detailed, and most of it is probably still fine. I plan to to create new instructions later.
+
+# license
+The Pygame Subset for Android is licensed under the GNU Lesser General Public License. To the best of our knowledge, Pygame, SDL, and all other dependences are licensed under compatible licenses.
+
+The Pygame Subset for Android is by:
+
+Tom Rothamel
+Patrick Dawson
+It integrates code from an number of projects, including:
+
+Python-for-android
+Pygame
+SDL (including Pelya's Android port)
+Python
+Jtar
+Jinja2
+Colorama
+
