@@ -283,6 +283,8 @@ def build(iface, directory, commands):
     if RENPY:
         manifest_extra = None        
         default_icon = "templates/renpy-icon.png"
+        default_icon_fg = "templates/pygame-icon-foreground.png"
+        default_icon_bg = "templates/pygame-icon-background.png"
         default_presplash = "templates/renpy-presplash.jpg"
 
         public_dir = None
@@ -292,6 +294,8 @@ def build(iface, directory, commands):
     else:
         manifest_extra = ""
         default_icon = "templates/pygame-icon.png"
+        default_icon_fg = "templates/pygame-icon-foreground.png"
+        default_icon_bg = "templates/pygame-icon-background.png"
         default_presplash = "templates/pygame-presplash.jpg"
         
         if config.layout == "internal":
@@ -343,15 +347,16 @@ def build(iface, directory, commands):
         
     iface.info("Updating source code.")
     
-    edit_file("src/org/renpy/android/DownloaderActivity.java", r'import .*\.R;', 'import {}.R;'.format(config.package))
+    #edit_file("src/org/renpy/android/DownloaderActivity.java", r'import .*\.R;', 'import {}.R;'.format(config.package)) #edit!
     
     iface.info("Updating build files.")
         
     # Update the project to a recent version.
-    subprocess.call([plat.android, "update", "project", "-p", '.', '-t', 'android-8', '-n', versioned_name,
+    subprocess.call([plat.android, "update", "project", "-p", '.', '-t', 'android-28', '-n', versioned_name,
         # "--library", "android-sdk/extras/google/play_licensing/library",
-        "--library", "android-sdk/extras/google/play_apk_expansion/downloader_library",
+        #"--library", "android-sdk/extras/google/play_apk_expansion/downloader_library",        
         ])
+
 
 
     iface.info("Creating assets directory.")
@@ -429,8 +434,10 @@ def build(iface, directory, commands):
         make_tar("assets/public.mp3", [ public_dir ])
 
     # Copy over the icon and presplash files.
-    shutil.copy(join_and_check(directory, "android-icon.png") or default_icon, "res/drawable/icon.png")
-    shutil.copy(join_and_check(directory, "android-presplash.jpg") or default_presplash, "res/drawable/presplash.jpg")
+    shutil.copy(join_and_check(directory, "android-icon.png") or default_icon, "res/mipmap-xxhdpi/ic_launcher.png")
+    shutil.copy(join_and_check(directory, "android-icon-foreground.png") or default_icon_fg, "res/drawable-xxhdpi/ic_foreground.png")
+    shutil.copy(join_and_check(directory, "android-icon-background.png") or default_icon_bg, "res/drawable-xxhdpi/ic_background.png")
+    shutil.copy(join_and_check(directory, "android-presplash.jpg") or default_presplash, "res/drawable-xxhdpi/presplash.jpg")
 
     # Build.
     iface.info("I'm using Ant to build the package.")
@@ -454,4 +461,14 @@ def build(iface, directory, commands):
 
     if expansion_file is not None:
         os.rename(expansion_file, "bin/" + expansion_file)
+
+    iface.info("Launching app.")
+    launch_activity = "PythonActivity"
+    subprocess.check_call([
+            plat.adb, "shell",
+            "am", "start",
+            "-W",
+            "-a", "android.intent.action.MAIN",
+            "{}/org.renpy.android.{}".format(config.package, launch_activity),
+            ])
         

@@ -133,11 +133,11 @@ public class Hardware {
 			 return rv;
 		 return (float[]) accelerometerSensor.readSensor();
 	 }
-     public static void orientationSensorEnable(boolean enable) {
-		 if ( orientationSensor == null )
-			 orientationSensor = new generic3AxisSensor(Sensor.TYPE_ORIENTATION);
-		 orientationSensor.changeStatus(enable);
-	 }
+//     public static void orientationSensorEnable(boolean enable) {
+//		 if ( orientationSensor == null )
+//			 orientationSensor = new generic3AxisSensor(Sensor.TYPE_ORIENTATION);
+//		 orientationSensor.changeStatus(enable);
+//	 }
      public static float[] orientationSensorReading() {
 		 float rv[] = { 0f, 0f, 0f };
 		 if ( orientationSensor == null )

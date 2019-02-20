@@ -76,8 +76,8 @@ class AudioThread {
 	{
 			if( mAudio == null )
 			{
-					channels = ( channels == 1 ) ? AudioFormat.CHANNEL_CONFIGURATION_MONO : 
-													AudioFormat.CHANNEL_CONFIGURATION_STEREO;
+					channels = ( channels == 1 ) ? AudioFormat.CHANNEL_OUT_MONO : 
+													AudioFormat.CHANNEL_OUT_STEREO;
 					encoding = ( encoding == 1 ) ? AudioFormat.ENCODING_PCM_16BIT :
 													AudioFormat.ENCODING_PCM_8BIT;
 

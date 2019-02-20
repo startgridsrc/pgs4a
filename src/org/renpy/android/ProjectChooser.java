@@ -36,7 +36,7 @@ public class ProjectChooser extends Activity implements AdapterView.OnItemClickL
         setTitle(resourceManager.getString("appName"));
 
         // Scan the sdcard for files, and sort them.
-        File dir = new File(Environment.getExternalStorageDirectory(), urlScheme);
+        File dir = new File(getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath()).getAbsolutePath(), urlScheme);
 
         File entries[] = dir.listFiles();
 

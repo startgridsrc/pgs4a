@@ -61,56 +61,22 @@ public class PythonActivity extends Activity implements Runnable {
         super.onCreate(savedInstanceState);
 
         Hardware.context = this;
-        Action.context = this;
+        // Action.context = this;
 		this.mActivity = this;
 
         getWindowManager().getDefaultDisplay().getMetrics(Hardware.metrics);
 
         resourceManager = new ResourceManager(this);
-        oldExternalStorage = new File(Environment.getExternalStorageDirectory(), getPackageName());
-        externalStorage = getExternalFilesDir(null);
+        // oldExternalStorage = new File(Environment.getExternalStorageDirectory(), getPackageName());
+        // externalStorage = getExternalFilesDir(null);
         
-        // Figure out the directory where the game is. If the game was
-        // given to us via an intent, then we use the scheme-specific
-        // part of that intent to determine the file to launch. We
-        // also use the android.txt file to determine the orientation.
-        //
-        // Otherwise, we use the public data, if we have it, or the
-        // private data if we do not.
-        if (getIntent().getAction().equals("org.renpy.LAUNCH")) {
-            mPath = new File(getIntent().getData().getSchemeSpecificPart());
-
-            Project p = Project.scanDirectory(mPath);
-
-            if (p != null) {
-                if (p.landscape) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                } else {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                }
-            }
-
-            // Let old apps know they started.
-            try {
-                FileWriter f = new FileWriter(new File(mPath, ".launch"));
-                f.write("started");
-                f.close();
-            } catch (IOException e) {
-                // pass
-            }
-
-
-
-        } else if (resourceManager.getString("public_version") != null) {
-            mPath = externalStorage;
-        } else {
-            mPath = getFilesDir();
-        }
+        mPath = getFilesDir();
 
         // go to fullscreen mode
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Start showing an SDLSurfaceView.
         mView = new SDLSurfaceView(
@@ -119,7 +85,11 @@ public class PythonActivity extends Activity implements Runnable {
         Hardware.view = mView;
 
         setContentView(mView);
-    }
+	if (android.os.Build.VERSION.SDK_INT>=19){
+		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN | SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION|SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+	if (android.os.Build.VERSION.SDK_INT>=24){
+		getWindow().setDecorCaptionShade(Window.DECOR_CAPTION_SHADE_DARK);}
+    	}
 
     /**
      * Show an error using a toast. (Only makes sense from non-UI
@@ -160,11 +130,11 @@ public class PythonActivity extends Activity implements Runnable {
      */
     public void unpackData(final String resource, File target) {
 
-    	/**
-    	 * Delete main.pyo unconditionally. This fixes a problem where we have
-    	 * a main.py newer than main.pyo, but start.c won't run it.
-    	 */
-    	new File(target, "main.pyo").delete();
+    /**
+    	 * Delete main.py unconditionally.
+     */
+    	new File(target, "main.py").delete();
+
     	
         // The version of data in memory and on disk.
         String data_version = resourceManager.getString(resource + "_version");
@@ -199,8 +169,12 @@ public class PythonActivity extends Activity implements Runnable {
 
             AssetExtract ae = new AssetExtract(this);
             if (!ae.extractTar(resource + ".mp3", target.getAbsolutePath())) {
+			AssetExtract2 ae2 = new AssetExtract2(this);
+            	if (!ae2.extractTar(resource + ".mp3", target.getAbsolutePath())) {
+
                 toastError("Could not extract " + resource + " data.");
             }
+}
 
             try {
                 // Write .nomedia.
@@ -212,6 +186,8 @@ public class PythonActivity extends Activity implements Runnable {
                 os.close();
             } catch (Exception e) {
                 Log.w("python", e);
+		toastError("Error 27.");
+
             }
         }
 
@@ -221,33 +197,36 @@ public class PythonActivity extends Activity implements Runnable {
     public void run() {
     
     	// Record the expansion file, if any.
-        mExpansionFile = getIntent().getStringExtra("expansionFile");
+        // mExpansionFile = getIntent().getStringExtra("expansionFile");
     
         unpackData("private", getFilesDir());
-        unpackData("public", externalStorage);
+        // unpackData("public", externalStorage);
 
-        System.loadLibrary("sdl");
+        try {
+	Log.i("python", "start loading libraries");
+	System.loadLibrary("sdl");
         System.loadLibrary("sdl_image");
         System.loadLibrary("sdl_ttf");
         System.loadLibrary("sdl_mixer");
-		System.loadLibrary("python2.7");
+	System.loadLibrary("python2.7");
+	System.loadLibrary("pymodules");
         System.loadLibrary("application");
         System.loadLibrary("sdl_main");
+	Log.i("python", "libraries loaded");
+	} catch(UnsatisfiedLinkError e) {
+	Log.i("python", "failed loading libraries");
+	toastError("Error 28.");
+	}
 
-		System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_io.so");
-        System.load(getFilesDir() + "/lib/python2.7/lib-dynload/unicodedata.so");
-
-        try {
-            System.loadLibrary("sqlite3");
-            System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_sqlite3.so");
-        } catch(UnsatisfiedLinkError e) {
-        }
 
         try {
+	    System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_io.so");
+            System.load(getFilesDir() + "/lib/python2.7/lib-dynload/unicodedata.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imaging.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imagingft.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imagingmath.so");
         } catch(UnsatisfiedLinkError e) {
+
         }
 
         if ( mAudioThread == null ) {
@@ -263,18 +242,18 @@ public class PythonActivity extends Activity implements Runnable {
     }
 
     @Override
-    protected void onPause() {
+    protected void onStop() {
         _isPaused = true;
-        super.onPause();
+        super.onStop();
 
         if (mView != null) {
-            mView.onPause();
+            mView.onStop();
         }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         _isPaused = false;
 
         if (!mLaunchedThread) {
@@ -283,14 +262,41 @@ public class PythonActivity extends Activity implements Runnable {
         }
 
         if (mView != null) {
-            mView.onResume();
+            mView.onStart();
+	if (android.os.Build.VERSION.SDK_INT>=19){
+	    mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
+		SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+		SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+	}
         }
     }
+
+
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+	if (!isInMultiWindowMode){
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		if (android.os.Build.VERSION.SDK_INT>=19){
+	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
+			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+		}
+	}
+/*
+        } else if (android.os.Build.VERSION.SDK_INT>=19){
+	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
+			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+	}
+*/
+    }
+
+
 
     public boolean isPaused() {
         return _isPaused;
     }
-
+/*
     @Override
     public boolean onKeyDown(int keyCode, final KeyEvent event) {
         //Log.i("python", "key2 " + mView + " " + mView.mStarted);
@@ -318,10 +324,12 @@ public class PythonActivity extends Activity implements Runnable {
             mView.onTouchEvent(ev);
             return true;
         } else {
-            return super.dispatchTouchEvent(ev);
+Log.i("python", "touch, but not ready");
+return true;
+            //return super.dispatchTouchEvent(ev);
         }
     }
-
+*/
 	protected void onDestroy() {
 		if (mView != null) {
 			mView.onDestroy();

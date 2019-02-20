@@ -21,6 +21,7 @@ def run(*args):
         return False
 
 ##############################################################################
+
 def check_java(interface):
     """
     Checks for the presence of a minimally useful java on the user's system.
@@ -71,16 +72,16 @@ def unpack_sdk(interface):
         interface.terms("http://developer.android.com/sdk/terms.html", "Do you accept the Android SDK Terms and Conditions?")
         
     if plat.windows:        
-        archive = "android-sdk_r20-windows.zip"
-        unpacked = "android-sdk-windows"
+        archive = "tools_r25.2.5-windows.zip"
+        unpacked = "tools"
     elif plat.macintosh:
-        archive = "android-sdk_r20-macosx.zip"        
-        unpacked = "android-sdk-macosx"
+        archive = "tools_r25.2.5-macosx.zip"        
+        unpacked = "tools"
     elif plat.linux:
-        archive = "android-sdk_r20-linux.tgz"
-        unpacked = "android-sdk-linux"
+        archive = "tools_r25.2.5-linux.zip"
+        unpacked = "tools"
     
-    url = "http://dl.google.com/android/" + archive
+    url = "http://dl-ssl.google.com/android/repository/" + archive
     
     interface.info("I'm downloading the Android SDK. This might take a while.")
     
@@ -88,16 +89,17 @@ def unpack_sdk(interface):
     
     interface.info("I'm extracting the Android SDK.")
     
+    os.makedirs("android-sdk")
+
     if archive.endswith(".tgz"):
         tf = tarfile.open(archive, "r:*")
         tf.extractall()
         tf.close()
     else:
         zf = zipfile.ZipFile(archive)
-        zf.extractall()
+        zf.extractall("android-sdk")
         zf.close()
         
-    os.rename(unpacked, "android-sdk")
     
     interface.success("I've finished unpacking the Android SDK.")
     
@@ -106,9 +108,9 @@ def unpack_ant(interface):
         interface.success("Apache ANT has already been unpacked.")
         return
     
-    archive = "apache-ant-1.8.4-bin.tar.gz"
-    unpacked = "apache-ant-1.8.4"
-    url = "http://archive.apache.org/dist/ant/binaries/" + archive
+    archive = "apache-ant-1.9.13-bin.tar.gz"
+    unpacked = "apache-ant-1.9.13"
+    url = "http://apache.40b.nl//ant/binaries/" + archive
 
     interface.info("I'm downloading Apache Ant. This might take a while.")
     
@@ -125,53 +127,15 @@ def unpack_ant(interface):
     interface.success("I've finished unpacking Apache Ant.")
     
 def get_packages(interface):
-    
-    packages = [ ]
-
-    if not os.path.exists("android-sdk/platforms/android-8"):
-        packages.append("android-8")
-
-    if not os.path.exists("android-sdk/platforms/android-15"):
-        packages.append("android-15")
-        
-    if not os.path.exists("android-sdk/platform-tools"):
-        packages.append("platform-tools")
-    
-    if not os.path.exists("android-sdk/extras/google/play_licensing"):
-        packages.append("extra-google-play_licensing")
-
-    if not os.path.exists("android-sdk/extras/google/play_apk_expansion"):
-        packages.append("extra-google-play_apk_expansion")
-    
-    # TODO: Install the play_ libraries, and maybe update them.
-    
-    if not packages:
-        interface.success("The required Android packages are already installed.")
-        return
-    
-    interface.info("I'm about to download and install the required Android packages. This might take a while.")
-    
-    if not run(plat.android, "update", "sdk", "-u", "-a", "-t", ",".join(packages)):
-        interface.fail("I was unable to install the required Android packages.")
-
-    interface.info("I'm updating the library packages.")
-    
-    if "extra-google-play_apk_expansion" in packages:
-        with open("android-sdk/extras/google/play_apk_expansion/downloader_library/project.properties", "r") as f:
-            data = f.read()
-            
-        data = data.replace("../market_licensing", "../../play_licensing/library")
-        
-        with open("android-sdk/extras/google/play_apk_expansion/downloader_library/project.properties", "w") as f:
-            f.write(data)
-            
-    run(plat.android, "update", "project", "-p", "android-sdk/extras/google/play_licensing/library")
-    run(plat.android, "update", "project", "-p", "android-sdk/extras/google/play_apk_expansion/downloader_library")
-        
-    if os.path.exists("android-sdk/extras/google/play_apk_expansion/downloader_library/res/values-v9"):
-        shutil.rmtree("android-sdk/extras/google/play_apk_expansion/downloader_library/res/values-v9")
-        
-    interface.success("I've finished installing the required Android packages.")
+    interface.info("Going to install 4 packages via the android SDK Manager (SDK Build-tools, Platform-tools, SDK Platform android-28, android-support).")
+    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "android-28"])
+    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "build-tools-28.0.2"])
+    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "platform-tools"])
+    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "extra-android-m2repository"])
+    try:
+        jar = "android-sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        shutil.copyfile(jar, "libs/android-support-v4.jar")
+    except: interface.info("Could not copy the android-support-v4.jar into the libs folder.")
     
 def generate_keys(interface):
     
@@ -203,7 +167,7 @@ Will you make a backup of android.keystore, and keep it in a safe place?"""):
     
     dname = "CN=" + org
     
-    run(plat.keytool, "-genkey", "-keystore", "android.keystore", "-alias", "android", "-keyalg", "RSA", "-keysize", "2048", "-keypass", "android", "-storepass", "android", "-dname", dname, "-validity", "20000")
+    run(plat.keytool, "-genkey", "-keystore", "android.keystore", "-alias", "android", "-keyalg", "RSA", "-keysize", "2048", "-keypass", "android", "-storepass", "android", "-dname", dname, "-validity", "36500")
     
     f = file("local.properties", "a")
     print >>f, "key.alias=android"

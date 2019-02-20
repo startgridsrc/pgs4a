@@ -6,6 +6,12 @@
 /.nomedia
 /.android.json
 /project.json
+/icon.png
+/android-presplash.jpg
+/android-icon-foreground.png
+/android-icon-background.png
+/Thumbs.db
+/main.py
 
 /lib
 /include
