@@ -1156,6 +1156,10 @@ if (android.os.Build.VERSION.SDK_INT>=21 && event.isFromSource(InputDevice.SOURC
 
 	@Override
         public boolean onGenericMotionEvent(MotionEvent event) {
+
+        	if (mInputActivated == false)
+            		return true;
+
 		if (android.os.Build.VERSION.SDK_INT>=21){
 		if (event.isFromSource(InputDevice.SOURCE_MOUSE) || event.isFromSource(InputDevice.SOURCE_STYLUS)) {
          		switch (event.getAction()) {
