@@ -85,6 +85,7 @@ public class PythonActivity extends Activity implements Runnable {
         Hardware.view = mView;
 
         setContentView(mView);
+	getWindow().setBackgroundDrawableResource(android.R.color.black);
 	if (android.os.Build.VERSION.SDK_INT>=19){
 		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN | SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION|SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
 	if (android.os.Build.VERSION.SDK_INT>=24){
@@ -272,6 +273,7 @@ public class PythonActivity extends Activity implements Runnable {
     }
 
 
+/*
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
 	if (!isInMultiWindowMode){
@@ -281,16 +283,15 @@ public class PythonActivity extends Activity implements Runnable {
 			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
 			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 		}
-	}
-/*
+	//}
+
         } else if (android.os.Build.VERSION.SDK_INT>=19){
 	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
 			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
 			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
-*/
     }
-
+*/
 
 
     public boolean isPaused() {
