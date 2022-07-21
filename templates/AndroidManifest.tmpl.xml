@@ -36,6 +36,11 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
 {% endif %}
+
+	<meta-data android:name="WindowManagerPreference:FreeformWindowSize"
+           	android:value="tablet" />
+	<meta-data android:name="WindowManagerPreference:FreeformWindowOrientation"
+           	android:value="landscape" />
     </activity>      
 
 {% if config.expansion %}
