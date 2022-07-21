@@ -523,7 +523,7 @@ def build(iface, directory, commands):
 
     iface.info("Installing app.")
     subprocess.check_call([
-            plat.adb, "install",
+            plat.adb, "install", "-r",
             apkpath
             ])
     
