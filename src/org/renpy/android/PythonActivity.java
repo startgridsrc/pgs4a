@@ -275,7 +275,7 @@ public class PythonActivity extends Activity implements Runnable {
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
 	if (!isInMultiWindowMode){
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		//this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 		if (android.os.Build.VERSION.SDK_INT>=19){
 	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
 			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
