@@ -435,7 +435,7 @@ def build(iface, directory, commands):
 
     # Copy over the icon and presplash files.
     shutil.copy(join_and_check(directory, "android-icon.png") or default_icon, "res/mipmap-xxhdpi/ic_launcher.png")
-    shutil.copy(join_and_check(directory, "android-icon-foreground.png") or default_icon_fg, "res/drawable-xxhdpi/ic_foreground.png")
+    shutil.copy(join_and_check(directory, "android-icon-foreground.png") or default_icon_fg, "res/drawable-xxhdpi/ic_foreground_trimmed.png")
     shutil.copy(join_and_check(directory, "android-icon-background.png") or default_icon_bg, "res/drawable-xxhdpi/ic_background.png")
     shutil.copy(join_and_check(directory, "android-presplash.jpg") or default_presplash, "res/drawable-xxhdpi/presplash.jpg")
 
@@ -462,6 +462,71 @@ def build(iface, directory, commands):
     if expansion_file is not None:
         os.rename(expansion_file, "bin/" + expansion_file)
 
+
+    for filename in os.listdir('bin'):
+        if filename.endswith("-release.apk"):
+            apkpath = os.path.join("bin", filename) # path of APK to be installed on device later on
+            break
+            
+    if int(config.targetsdk) > 29:
+        iface.info("Targetsdk > 29: signing the APK package using the APK Signature Scheme v2.")
+        signed = False
+        for filename in os.listdir('bin'):
+            if filename.endswith("-unsigned.apk"): # the unaligned and unsigned package
+                #shutil.copy(os.path.join("bin", filename), os.path.join("bin", "unaligned.apk"))
+                unalignedpath = os.path.join("bin", filename)
+                alignedpath = os.path.join("bin", "aligned.apk")
+                break
+        #try
+        buildtoolsdir = os.listdir(
+                os.path.join("android-sdk", "build-tools"))[-1]
+        for filename in os.listdir(
+                os.path.join("android-sdk", "build-tools",
+                buildtoolsdir)):
+            if filename.startswith("zipalign"):
+                iface.info("Using " + filename + " to create " + alignedpath + " from " + unalignedpath)
+                subprocess.check_call(
+                    os.path.join(".", "android-sdk", "build-tools", buildtoolsdir, filename) \
+                    + " -p -f 4 " + unalignedpath + " " + alignedpath, shell=True)
+                break
+        for filename in os.listdir(
+                os.path.join("android-sdk", "build-tools",
+                buildtoolsdir)):
+            if filename.startswith("apksigner"):
+                password = ''
+                try:
+                    with open("local.properties", "r") as f:
+                        for line in f:
+                            if line.startswith("key.store.password"):
+                                password = line.split('=')[1].strip()
+                                break
+                except: pass
+                if password:
+                    with open("password_temp.txt", "w") as f: # create temporary password file
+                        f.write(password)
+                    password = " --ks-pass file:password_temp.txt "
+                subprocess.check_call(
+                    os.path.join(".", "android-sdk", "build-tools", buildtoolsdir, filename) \
+                    + " sign --ks android.keystore" + password + alignedpath, shell=True)
+                try:
+                    os.remove("password_temp.txt")
+                except: pass
+                iface.info("Signed " + alignedpath + " using " + filename + ".")
+                shutil.copy(alignedpath, apkpath)
+                iface.info("Overwritten " + alignedpath + " onto " + apkpath + ".")
+                signed = True
+                break
+        if not signed: iface.info("APK could not be signed properly! Try to fix the build.py file in /buildlib.")
+
+                
+        
+
+    iface.info("Installing app.")
+    subprocess.check_call([
+            plat.adb, "install",
+            apkpath
+            ])
+    
     iface.info("Launching app.")
     launch_activity = "PythonActivity"
     subprocess.check_call([

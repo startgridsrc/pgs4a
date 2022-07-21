@@ -6,6 +6,14 @@
           android:versionName="{{config.version}}"
           >
 
+{% if config.targetsdk > 29 %}
+      	<queries>
+		<intent>
+   			<action android:name="android.intent.action.TTS_SERVICE" />
+  		</intent>
+ 	</queries>
+{% endif %}
+
   <application android:label="@string/appName" 
                android:icon="@mipmap/ic_launcher"
 	       android:fullBackupContent="@xml/backup"
@@ -19,6 +27,7 @@
               android:process=":python"
               android:screenOrientation="{{ config.orientation }}"
               android:windowSoftInputMode="stateAlwaysHidden"
+	      android:exported="true"
             >
 
 {% if not config.expansion %}
@@ -59,7 +68,7 @@
 
   <uses-feature android:glEsVersion="0x00020000" android:required="true" />
   <uses-feature android:name="android.hardware.touchscreen"
-                  required="false" />
+                  android:required="false" />
   <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="{{config.targetsdk}}"/>
 
   {% if config.expansion %}

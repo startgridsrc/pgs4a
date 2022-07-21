@@ -108,9 +108,9 @@ def unpack_ant(interface):
         interface.success("Apache ANT has already been unpacked.")
         return
     
-    archive = "apache-ant-1.9.13-bin.tar.gz"
-    unpacked = "apache-ant-1.9.13"
-    url = "http://apache.40b.nl//ant/binaries/" + archive
+    archive = "apache-ant-1.10.12-bin.tar.gz"
+    unpacked = "apache-ant-1.10.12"
+    url = "https://dlcdn.apache.org//ant/binaries/" + archive
 
     interface.info("I'm downloading Apache Ant. This might take a while.")
     
