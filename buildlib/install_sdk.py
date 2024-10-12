@@ -48,7 +48,7 @@ class test {
 I was unable to use javac to compile a test file. If you haven't installed
 the JDK yet, please download it from:
 
-http://www.oracle.com/technetwork/java/javase/downloads/index.html
+https://www.oracle.com/java/technologies/downloads/
 
 The JDK is different from the JRE, so it's possible you have Java
 without having the JDK.""")
@@ -71,6 +71,41 @@ def unpack_sdk(interface):
     if "PGS4A_NO_TERMS" not in os.environ:
         interface.terms("http://developer.android.com/sdk/terms.html", "Do you accept the Android SDK Terms and Conditions?")
         
+    # To be able to download platform android-33, we need commandline tools:
+    if plat.windows:        
+        archive = "commandlinetools-windows-11076708_latest.zip"
+        unpacked = "tools"
+    elif plat.macintosh:
+        archive = "commandlinetools-macosx-11076708_latest.zip"        
+        unpacked = "tools"
+    elif plat.linux:
+        archive = "commandlinetools-linux-11076708_latest.zip"
+        unpacked = "tools"
+    
+    url = "https://dl.google.com/android/repository/" + archive
+    
+    interface.info("I'm downloading the Android cmdline-tools. This might take a while.")
+    
+    urllib.urlretrieve(url, archive)
+    
+    interface.info("I'm extracting the Android cmdline-tools.")
+    
+    os.makedirs("android-sdk/cmdline-tools")
+
+    zf = zipfile.ZipFile(archive)
+    zf.extractall("android-sdk/cmdline-tools")
+    zf.close()
+
+    #shutil.copytree("android-sdk/cmdline-tools", "android-sdk/cmdline-tools/latest")
+    shutil.move("android-sdk/cmdline-tools/cmdline-tools",
+                "android-sdk/cmdline-tools/latest")
+    
+    if plat.macintosh or plat.linux:
+        os.chmod("android-sdk/cmdline-tools/latest/bin/sdkmanager", 0755)
+
+    #os.environ["JAVA_HOME"] = "/usr/lib/jvm/jdk-23"
+    
+    # For the rest of the toolchain, we need the old android tools:
     if plat.windows:        
         archive = "tools_r25.2.5-windows.zip"
         unpacked = "tools"
@@ -83,14 +118,12 @@ def unpack_sdk(interface):
     
     url = "http://dl-ssl.google.com/android/repository/" + archive
     
-    interface.info("I'm downloading the Android SDK. This might take a while.")
+    interface.info("I'm downloading the Android tools. This might take a while.")
     
     urllib.urlretrieve(url, archive)
     
-    interface.info("I'm extracting the Android SDK.")
+    interface.info("I'm extracting the Android tools.")
     
-    os.makedirs("android-sdk")
-
     if archive.endswith(".tgz"):
         tf = tarfile.open(archive, "r:*")
         tf.extractall()
@@ -99,11 +132,20 @@ def unpack_sdk(interface):
         zf = zipfile.ZipFile(archive)
         zf.extractall("android-sdk")
         zf.close()
-        
-    
+
+    interface.info("Patching java.target from 1.5 to 1.8 in android-sdk/tools/ant/build.xml")
+    try:
+        if plat.macintosh or plat.linux:
+            subprocess.call(["sed", "-i", 's/value="1.5"/value="1.8"/g', "android-sdk/tools/ant/build.xml"])
+        else:
+            subprocess.call(['get-content android-sdk/tools/ant/build.xml | %{$_ -replace "value=\"1.5\"","value=\"1.8\""}'])
+    except:
+        interface.info("Could not patch android-sdk/tools/ant/build.xml. You have to manually change java.target from 1.5 to 1.8.")
+
     interface.success("I've finished unpacking the Android SDK.")
     
 def unpack_ant(interface):
+    
     if os.path.exists("apache-ant"):
         interface.success("Apache ANT has already been unpacked.")
         return
@@ -127,8 +169,11 @@ def unpack_ant(interface):
     interface.success("I've finished unpacking Apache Ant.")
     
 def get_packages(interface):
-    interface.info("Going to install 4 packages via the android SDK Manager (SDK Build-tools, Platform-tools, SDK Platform android-28, android-support).")
-    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "android-28"])
+    
+    interface.info("Going to install platform android-33 via the android sdkmanager.")
+    subprocess.call([plat.sdkmanager, "platforms;android-33"])
+    
+    interface.info("Going to install 3 packages via the old android skdmanager (SDK Build-tools, Platform-tools, android-support).")
     subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "build-tools-28.0.2"])
     subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "platform-tools"])
     subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "extra-android-m2repository"])

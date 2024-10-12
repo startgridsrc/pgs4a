@@ -10,14 +10,14 @@ class Configuration(object):
         self.icon_name = None    
         self.version = None
         self.numeric_version = None
-        self.orientation = None
+        self.orientation = "user"
         self.permissions = []        
         self.include_pil = False
         self.include_sqlite = False
         self.layout = "internal"
         self.source = False
         self.expansion = False
-	self.targetsdk = 26
+	self.targetsdk = 33
         
         try:
             with file(os.path.join(directory, ".android.json"), "r") as f:
@@ -111,7 +111,7 @@ What permissions should your application have? Possible permissions include:
 
 INTERNET (network access), VIBRATE (vibration control).
     
-Please enter a space-separated list of permissions.""", permissions)
+Please enter a space-separated list of permissions. Or leave it empty.""", permissions)
         config.permissions = permissions.split()
     
         config.include_sqlite = interface.yesno("Do you want to include SQLite3 with your application?", config.include_sqlite)

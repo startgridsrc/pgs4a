@@ -346,15 +346,11 @@ def build(iface, directory, commands):
         pass
         
     iface.info("Updating source code.")
-    
-    #edit_file("src/org/renpy/android/DownloaderActivity.java", r'import .*\.R;', 'import {}.R;'.format(config.package)) #edit!
-    
+        
     iface.info("Updating build files.")
         
     # Update the project to a recent version.
-    subprocess.call([plat.android, "update", "project", "-p", '.', '-t', 'android-33', '-n', versioned_name,
-        # "--library", "android-sdk/extras/google/play_licensing/library",
-        #"--library", "android-sdk/extras/google/play_apk_expansion/downloader_library",        
+    subprocess.call([plat.android, "update", "project", "-p", '.', '-t', 'android-33', '-n', versioned_name,       
         ])
 
 
@@ -442,12 +438,23 @@ def build(iface, directory, commands):
     # Build.
     iface.info("I'm using Ant to build the package.")
 
+    sign_with_apksigner = False
+    
     # Clean is required 
-    try:   
+    try:
+        # ant will try to sign apk
         subprocess.check_call([plat.ant, "clean"] +  commands)
         iface.success("It looks like the build succeeded.")
     except:
-        iface.fail("The build seems to have failed.")
+        # Jar signing (v1) will fail when using newer java versions,
+        # but that's ok as long as an unsigned app was created succesfully
+        for filename in os.listdir('bin'):
+            if filename.endswith("-unsigned.apk"):
+                sign_with_apksigner = True
+                iface.info("Good enough: it looks like an unsigned apk was built.")
+                break
+        if not sign_with_apksigner:
+            iface.fail("The build seems to have failed.")
 
 
     if (expansion_file is not None) and ("install" in commands):
@@ -464,20 +471,19 @@ def build(iface, directory, commands):
 
 
     for filename in os.listdir('bin'):
-        if filename.endswith("-release.apk"):
-            apkpath = os.path.join("bin", filename) # path of APK to be installed on device later on
+        if filename.endswith("-unsigned.apk"):
+            # path of APK to be installed on device later on
+            apkpath = os.path.join("bin", filename[:-13] + "-release.apk")
             break
             
-    if int(config.targetsdk) > 29:
-        iface.info("Targetsdk > 29: signing the APK package using the APK Signature Scheme v2.")
+    if sign_with_apksigner or int(config.targetsdk) > 29:
+        iface.info("Signing the APK with apksigner: includes APK Signature Scheme v2.")
         signed = False
         for filename in os.listdir('bin'):
             if filename.endswith("-unsigned.apk"): # the unaligned and unsigned package
-                #shutil.copy(os.path.join("bin", filename), os.path.join("bin", "unaligned.apk"))
                 unalignedpath = os.path.join("bin", filename)
                 alignedpath = os.path.join("bin", "aligned.apk")
                 break
-        #try
         buildtoolsdir = os.listdir(
                 os.path.join("android-sdk", "build-tools"))[-1]
         for filename in os.listdir(
@@ -505,18 +511,19 @@ def build(iface, directory, commands):
                     with open("password_temp.txt", "w") as f: # create temporary password file
                         f.write(password)
                     password = " --ks-pass file:password_temp.txt "
+                # apksigner signs app using both schemes v1 and v2 automatically if needed
                 subprocess.check_call(
                     os.path.join(".", "android-sdk", "build-tools", buildtoolsdir, filename) \
                     + " sign --ks android.keystore" + password + alignedpath, shell=True)
                 try:
                     os.remove("password_temp.txt")
-                except: pass
+                except: iface.fail("Could not delete temporary password file!")
                 iface.info("Signed " + alignedpath + " using " + filename + ".")
                 shutil.copy(alignedpath, apkpath)
                 iface.info("Overwritten " + alignedpath + " onto " + apkpath + ".")
                 signed = True
                 break
-        if not signed: iface.info("APK could not be signed properly! Try to fix the build.py file in /buildlib.")
+        if not signed: iface.info("APK could not be signed properly!")
 
                 
         

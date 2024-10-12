@@ -16,14 +16,27 @@ def set_win32_java_home():
         return
 
     import _winreg
-    
-    with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\JavaSoft\Java Development Kit") as jdk: #@UndefinedVariable
-        current_version, _type = _winreg.QueryValueEx(jdk, "CurrentVersion") #@UndefinedVariable
-        
-        with _winreg.OpenKey(jdk, current_version) as cv: #@UndefinedVariable
-            java_home, _type = _winreg.QueryValueEx(cv, "JavaHome") #@UndefinedVariable
-        
-        os.environ["JAVA_HOME"] = java_home 
+    try:
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\JavaSoft\Java Development Kit") as jdk: #@UndefinedVariable
+            current_version, _type = _winreg.QueryValueEx(jdk, "CurrentVersion") #@UndefinedVariable
+            
+            with _winreg.OpenKey(jdk, current_version) as cv: #@UndefinedVariable
+                java_home, _type = _winreg.QueryValueEx(cv, "JavaHome") #@UndefinedVariable
+            
+            os.environ["JAVA_HOME"] = java_home
+    except:
+        bits = platform.architecture()[0]
+        if bits == '32bit':
+            bit_flag_flag = _winreg.KEY_WOW64_64KEY
+        elif bits == '64bit':
+            bit_flag_flag = _winreg.KEY_WOW64_32KEY
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\JavaSoft\JDK", 0, _winreg.KEY_READ | bit_flag_flag) as jdk: #@UndefinedVariable
+            current_version, _type = _winreg.QueryValueEx(jdk, "CurrentVersion") #@UndefinedVariable
+            
+            with _winreg.OpenKey(jdk, current_version) as cv: #@UndefinedVariable
+                java_home, _type = _winreg.QueryValueEx(cv, "JavaHome") #@UndefinedVariable
+            
+            os.environ["JAVA_HOME"] = java_home
 
 def maybe_java_home(s):
     """
@@ -49,6 +62,7 @@ if platform.win32_ver()[0]:
     adb = "android-sdk\\platform-tools\\adb.exe"
     javac = maybe_java_home("javac.exe")
     keytool = maybe_java_home("keytool.exe")
+    sdkmanager = "android-sdk\\cmdline-tools\\latest\\bin\\sdkmanager"
 
 elif platform.mac_ver()[0]:
     macintosh = True
@@ -57,6 +71,7 @@ elif platform.mac_ver()[0]:
     adb = "android-sdk/platform-tools/adb"
     javac = maybe_java_home("javac")
     keytool = maybe_java_home("keytool")
+    sdkmanager = "android-sdk/cmdline-tools/latest/bin/sdkmanager"
 
 else:
     linux = True
@@ -65,3 +80,4 @@ else:
     adb = "android-sdk/platform-tools/adb"
     javac = maybe_java_home("javac")
     keytool = maybe_java_home("keytool")
+    sdkmanager = "android-sdk/cmdline-tools/latest/bin/sdkmanager"
