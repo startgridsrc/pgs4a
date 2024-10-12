@@ -87,6 +87,7 @@ This should be an integer number, for example API 28 for targeting android Pie (
     config.orientation = interface.choice("How would you like your application to be displayed?", [
             ("sensorLandscape", "In landscape mode."),
             ("sensorPortrait", "In portrait mode."),
+            ("user", "Use screen rotation setting from user device."),
         ], config.orientation)
 
     config.expansion = interface.choice("Would you like to create an expansion APK?", [
