@@ -1,8 +1,8 @@
 # pgs4a
-An evolution of the deprecated Pygame Subset for Android. It's an easy way to port your Pygame to your mobile devices!
+A slightly modified version of the deprecated Pygame Subset for Android. It's an easy way to port your Pygame to your mobile devices!
 Pgs4a was made by Tom Rothamel, Patrick Dawson and others, using Kivy's *python-for-android* packager to make Pygame games run on android.
 He developed pgs4a until 2013 until he moved on with his other projects.
-Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the constantly evolving android environment.
+Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the constantly evolving android environment. Note that it still depends on outdated versions of libraries, like Python 2.7, and app bundles for google play are not supported.
 
 # Changelog
 
@@ -16,13 +16,13 @@ Meanwhile, I made a couple of edits to pgs4a for it to work nicely in the consta
 * two-finger multitouch implementation
 * target SDK of project can be configured by user
 * added full keyboard and mouse (api 21+) support
-* autobackup via google, for specified files (api 23+)
+* autobackup via google, for specified files (api 23+, see */res/xml*)
 * resizeable activity (api 24+)
 * adaptive icon (api 26+)
 * additional 64-bit libraries
-* can build APKs that run on devices up to API 31 (android 12), although no app bundles are created
+* can build APKs that run on devices up to API 33 (android 12), although no app bundles are created (so no uploading to google play)
 
-The shared libraries in the *libs* folder are built by the [rapt](https://github.com/startgridsrc/rapt) toolchain. This toolchain actually builds an entire pgs4a distribution, like this repository, but it's not as well maintained as this one. Only the shared libraries (.so files) are simply copied into this (better maintained) repository. 
+The shared libraries in the *libs* folder are built by the [rapt](https://github.com/startgridsrc/rapt) toolchain. This toolchain actually builds an entire pgs4a distribution, like this repository, but it's not as up to date as this repository. The shared libraries (.so files) of the other rapt repository are simply copied into this (newer) repository. 
 
 # Instructions
 1. Clone this repository (using git, or download it as zip and extract it somewhere)
@@ -33,7 +33,7 @@ The shared libraries in the *libs* folder are built by the [rapt](https://github
 1. Run `python ./android.py configure yourproject`, where you replace *yourproject* with the name of your own project folder. A json file will be added to your game folder, containing several properties of your app, for example the name and version.
 1. Connect your phone to your PC via USB. Make sure USB debugging is enabled (see developer options on your phone) as well as USB file transfer.
 1. Run `python ./android.py build yourproject release`. An APK should be created and installed on your phone. It will run your app immediately, in theory!
-1. If the app installs, but crashes immediately, use *adb logcat* to find out why. Navigate to *android-sdk/platform-tools* and run `./adb logcat`. Open your app, and when it crashes, press *Ctrl + C* to stop logging, and look for errors. For example, your project folder has to contain a file called *main.py*, so you may have to rename one of your files to that, and try again. Or you may want to change *java.target* to 1.7 in the file *\android-sdk\tools\ant\build.xml* to avoid javac warnings/errors.
+1. If the app installs, but crashes immediately, use *adb logcat* to find out why. Navigate to *android-sdk/platform-tools* and run `./adb logcat`. Open your app, and when it crashes, press *Ctrl + C* to stop logging, and look for errors. For example, your project folder has to contain a file called *main.py*, so you may have to rename one of your files to that, and try again. Or you may want to change *java.target* to 1.7 in the file *\android-sdk\tools\ant\build.xml* to avoid javac warnings/errors. Tip: to filter Python-only logs, run `./adb logcat -s "python"`.
 
 The original instructions can be found [here](https://github.com/startgridsrc/rapt/blob/master/doc/android-packaging.rst).
 These are the original instructions which are old but detailed, and most of it is probably still fine. You'll find handy info on using the android module in Python, for example to make your game handle the back button, and detect app switching (so you know when to call your savegame function).
