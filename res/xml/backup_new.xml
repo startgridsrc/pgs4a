@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+  <cloud-backup>
+    <include domain="file" path="savegame" />
+    <include domain="file" path="savegame1" />
+    <include domain="file" path="savegame2" />
+    <include domain="file" path="savegame3" />
+    <include domain="file" path="savegame4" />
+    <include domain="file" path="savegame5" />
+    <include domain="file" path="savegame6" />
+    <include domain="file" path="savegame7" />
+    <include domain="file" path="savegame8" />
+    <include domain="file" path="savegame9" />
+    <include domain="file" path="savegame10" />
+    <include domain="file" path="savegame11" />
+    <include domain="file" path="savegame12" />
+    <include domain="external" path="." />
+  </cloud-backup>
+  <device-transfer>
+    <include domain="file" path="savegame" />
+    <include domain="file" path="savegame1" />
+    <include domain="file" path="savegame2" />
+    <include domain="file" path="savegame3" />
+    <include domain="file" path="savegame4" />
+    <include domain="file" path="savegame5" />
+    <include domain="file" path="savegame6" />
+    <include domain="file" path="savegame7" />
+    <include domain="file" path="savegame8" />
+    <include domain="file" path="savegame9" />
+    <include domain="file" path="savegame10" />
+    <include domain="file" path="savegame11" />
+    <include domain="file" path="savegame12" />
+    <include domain="external" path="." />
+  </device-transfer>
+</data-extraction-rules>

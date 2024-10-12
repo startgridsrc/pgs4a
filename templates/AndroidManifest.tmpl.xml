@@ -17,6 +17,7 @@
   <application android:label="@string/appName" 
                android:icon="@mipmap/ic_launcher"
 	       android:fullBackupContent="@xml/backup"
+           android:dataExtractionRules="@xml/backup_new"
 		android:resizeableActivity="true"
                >
 
