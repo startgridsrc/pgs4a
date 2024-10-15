@@ -82,7 +82,7 @@ This should be an integer number, and the value should increase between versions
 
     config.targetsdk = interface.input("""What is the targetsdk version of the app? 
 
-This should be an integer number, for example API 28 for targeting android Pie (9.0).""", config.targetsdk)
+This should be an integer number, for example API 33 for targeting android 13.""", config.targetsdk)
 
     config.orientation = interface.choice("How would you like your application to be displayed?", [
             ("sensorLandscape", "In landscape mode."),

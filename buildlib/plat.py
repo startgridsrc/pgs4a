@@ -62,7 +62,7 @@ if platform.win32_ver()[0]:
     adb = "android-sdk\\platform-tools\\adb.exe"
     javac = maybe_java_home("javac.exe")
     keytool = maybe_java_home("keytool.exe")
-    sdkmanager = "android-sdk\\cmdline-tools\\latest\\bin\\sdkmanager"
+    sdkmanager = "android-sdk\\cmdline-tools\\latest\\bin\\sdkmanager.bat"
 
 elif platform.mac_ver()[0]:
     macintosh = True

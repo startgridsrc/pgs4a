@@ -73,10 +73,10 @@ def unpack_sdk(interface):
         
     # To be able to download platform android-33, we need commandline tools:
     if plat.windows:        
-        archive = "commandlinetools-windows-11076708_latest.zip"
+        archive = "commandlinetools-win-11076708_latest.zip"
         unpacked = "tools"
     elif plat.macintosh:
-        archive = "commandlinetools-macosx-11076708_latest.zip"        
+        archive = "commandlinetools-mac-11076708_latest.zip"        
         unpacked = "tools"
     elif plat.linux:
         archive = "commandlinetools-linux-11076708_latest.zip"
@@ -133,15 +133,6 @@ def unpack_sdk(interface):
         zf.extractall("android-sdk")
         zf.close()
 
-    interface.info("Patching java.target from 1.5 to 1.8 in android-sdk/tools/ant/build.xml")
-    try:
-        if plat.macintosh or plat.linux:
-            subprocess.call(["sed", "-i", 's/value="1.5"/value="1.8"/g', "android-sdk/tools/ant/build.xml"])
-        else:
-            subprocess.call(['get-content android-sdk/tools/ant/build.xml | %{$_ -replace "value=\"1.5\"","value=\"1.8\""}'])
-    except:
-        interface.info("Could not patch android-sdk/tools/ant/build.xml. You have to manually change java.target from 1.5 to 1.8.")
-
     interface.success("I've finished unpacking the Android SDK.")
     
 def unpack_ant(interface):
@@ -174,13 +165,35 @@ def get_packages(interface):
     subprocess.call([plat.sdkmanager, "platforms;android-33"])
     
     interface.info("Going to install 3 packages via the old android skdmanager (SDK Build-tools, Platform-tools, android-support).")
-    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "build-tools-28.0.2"])
+    subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "build-tools-29.0.3"])
     subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "platform-tools"])
     subprocess.call([plat.android, "update", "sdk", "--no-ui", "--all", "--filter", "extra-android-m2repository"])
+    
     try:
         jar = "android-sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
         shutil.copyfile(jar, "libs/android-support-v4.jar")
     except: interface.info("Could not copy the android-support-v4.jar into the libs folder.")
+
+    # To stop newer Java versions generating errors, we change two files:
+    interface.info("Patching java.target from 1.5 to 1.8 in android-sdk/tools/ant/build.xml")
+    try:
+        if plat.macintosh or plat.linux:
+            subprocess.call(["sed", "-i", 's/value="1.5"/value="1.8"/g', "android-sdk/tools/ant/build.xml"])
+        else:
+            powershell_command = "(Get-Content android-sdk/tools/ant/build.xml) -replace '1.5', '1.8' | Out-File -encoding ASCII android-sdk/tools/ant/build.xml"
+            subprocess.call(["powershell", "-Command", powershell_command])
+    except:
+        interface.info("Could not patch android-sdk/tools/ant/build.xml. You have to manually change java.target from 1.5 to 1.8.")
+
+    interface.info("Replacing Djava.ext.dirs with classpath in android-sdk/build-tools/29.0.3/dx.bat")
+    try:
+        if plat.macintosh or plat.linux:
+            subprocess.call(["sed", "-i", 's/ -Djava.ext.dirs=/ -classpath /g', "android-sdk/tools/ant/build.xml"])
+        else:
+            powershell_command = "(Get-Content android-sdk/build-tools/29.0.3/dx.bat) -replace ' -Djava.ext.dirs=', ' -classpath ' | Out-File -encoding ASCII android-sdk/build-tools/29.0.3/dx.bat"
+            subprocess.call(["powershell", "-Command", powershell_command])
+    except:
+        interface.info("Could not patch android-sdk/build-tools/29.0.3/dx.bat. You have to manually change Djava.ext.dirs= to classpath.")
     
 def generate_keys(interface):
     

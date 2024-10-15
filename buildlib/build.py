@@ -293,10 +293,10 @@ def build(iface, directory, commands):
     
     else:
         manifest_extra = ""
-        default_icon = "templates/pygame-icon.png"
-        default_icon_fg = "templates/pygame-icon-foreground.png"
-        default_icon_bg = "templates/pygame-icon-background.png"
-        default_presplash = "templates/pygame-presplash.jpg"
+        default_icon = "templates/android-icon.png"
+        default_icon_fg = "templates/android-icon-foreground.png"
+        default_icon_bg = "templates/android-icon-background.png"
+        default_presplash = "templates/android-presplash.jpg"
         
         if config.layout == "internal":
             private_dir = directory
@@ -347,7 +347,7 @@ def build(iface, directory, commands):
         
     iface.info("Updating source code.")
         
-    iface.info("Updating build files.")
+    iface.info("Updating build files, using platform android-33")
         
     # Update the project to a recent version.
     subprocess.call([plat.android, "update", "project", "-p", '.', '-t', 'android-33', '-n', versioned_name,       
