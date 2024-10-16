@@ -25,7 +25,7 @@ Meanwhile, I made a couple of edits to pgs4a to keep it working nicely in the co
 The shared libraries in the *libs* folder are built by the [rapt](https://github.com/startgridsrc/rapt) toolchain. This toolchain actually builds an entire pgs4a distribution, like this repository, but it's not as up to date as this repository. The shared libraries (.so files) of the other rapt repository are simply copied into this (newer) repository. 
 
 # Instructions
-1. Make sure a recent Java JDK an JRE are installed. This project is tested with OpenJDK 23.0.1, both on Windows and Linux platforms. MacOs may work but is not tested.
+1. Make sure a recent Java JDK and JRE are installed. This project is tested with OpenJDK 23.0.1, both on Windows and Linux platforms. MacOS may work but is not tested.
 1. Clone this repository, open a terminal and run:
    
    ```
@@ -37,7 +37,7 @@ The shared libraries in the *libs* folder are built by the [rapt](https://github
    - Android tools (older version which downloads 'build-tools-29.0.3', 'platform-tools' and 'extra-android-m2repository')
     - You will be prompted to agree with the terms and conditions of the SDK packages, requiring you to press *yes* or *y* many times. Then it copies 'support-v4-19.1.0.jar' from extra-android-m2repository into the `libs` folder. And to make that Ant build without errors with newer Java versions, two files are edited automatically: 'build.xml' and 'dx.bat'. And finally, the script will help you create a random key to sign APKs (you need to create a key in case you haven't a key already). A key is required to install an APK on a device.
 If any of this fails, look into `buildlib/install_sdk.py`.
-1. In this readme, the folder *examples/example_app* is used to create a minimal app to demonstrate the build process is working. To build your own game, just add a new folder with your game files, and use the path of your folder instead.
+1. In this readme, the folder *examples/example_app* is used to create a minimal app to demonstrate that the build process is working. To build your own game, just add a new folder with your game files, and use the path of your folder instead.
 1. Run
    ```
    python ./android.py configure examples/example_app
