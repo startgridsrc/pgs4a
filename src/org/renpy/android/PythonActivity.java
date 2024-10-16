@@ -23,14 +23,20 @@ import android.util.Log;
 import android.util.DisplayMetrics;
 import android.os.Debug;
 
+
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.*;
 
 import java.util.zip.GZIPInputStream;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class PythonActivity extends Activity implements Runnable {
 
@@ -56,19 +62,22 @@ public class PythonActivity extends Activity implements Runnable {
 
     boolean _isPaused = false;
 
+    // store string of file, in case we opened a txt file using the file picker intent openFile()
+    private String fileUriString;
+    private String fileContentString;
+    private static final int PICK_TXT_FILE = 42;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Hardware.context = this;
-        // Action.context = this;
+
 		this.mActivity = this;
 
         getWindowManager().getDefaultDisplay().getMetrics(Hardware.metrics);
 
         resourceManager = new ResourceManager(this);
-        // oldExternalStorage = new File(Environment.getExternalStorageDirectory(), getPackageName());
-        // externalStorage = getExternalFilesDir(null);
         
         mPath = getFilesDir();
 
@@ -76,7 +85,7 @@ public class PythonActivity extends Activity implements Runnable {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Start showing an SDLSurfaceView.
         mView = new SDLSurfaceView(
@@ -85,12 +94,14 @@ public class PythonActivity extends Activity implements Runnable {
         Hardware.view = mView;
 
         setContentView(mView);
-	getWindow().setBackgroundDrawableResource(android.R.color.black);
-	if (android.os.Build.VERSION.SDK_INT>=19){
-		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN | SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION|SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
-	if (android.os.Build.VERSION.SDK_INT>=24){
-		getWindow().setDecorCaptionShade(Window.DECOR_CAPTION_SHADE_DARK);}
-    	}
+		getWindow().setBackgroundDrawableResource(android.R.color.black);
+		if (android.os.Build.VERSION.SDK_INT>=19){
+			mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN | SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION|SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+		}
+		if (android.os.Build.VERSION.SDK_INT>=24){
+			getWindow().setDecorCaptionShade(Window.DECOR_CAPTION_SHADE_DARK);
+		}
+	}
 
     /**
      * Show an error using a toast. (Only makes sense from non-UI
@@ -172,10 +183,9 @@ public class PythonActivity extends Activity implements Runnable {
             if (!ae.extractTar(resource + ".mp3", target.getAbsolutePath())) {
 			AssetExtract2 ae2 = new AssetExtract2(this);
             	if (!ae2.extractTar(resource + ".mp3", target.getAbsolutePath())) {
-
-                toastError("Could not extract " + resource + " data.");
-            }
-}
+                	toastError("Could not extract " + resource + " data.");
+            	}
+		}
 
             try {
                 // Write .nomedia.
@@ -187,47 +197,40 @@ public class PythonActivity extends Activity implements Runnable {
                 os.close();
             } catch (Exception e) {
                 Log.w("python", e);
-		toastError("Error 27.");
+				toastError("Error 27.");
 
             }
         }
 
     }
 
-
     public void run() {
     
-    	// Record the expansion file, if any.
-        // mExpansionFile = getIntent().getStringExtra("expansionFile");
-    
         unpackData("private", getFilesDir());
-        // unpackData("public", externalStorage);
 
         try {
-	Log.i("python", "start loading libraries");
-	System.loadLibrary("sdl");
-        System.loadLibrary("sdl_image");
-        System.loadLibrary("sdl_ttf");
-        System.loadLibrary("sdl_mixer");
-	System.loadLibrary("python2.7");
-	System.loadLibrary("pymodules");
-        System.loadLibrary("application");
-        System.loadLibrary("sdl_main");
-	Log.i("python", "libraries loaded");
-	} catch(UnsatisfiedLinkError e) {
-	Log.i("python", "failed loading libraries");
-	toastError("Error 28.");
-	}
-
+			Log.i("python", "start loading libraries");
+			System.loadLibrary("sdl");
+        	System.loadLibrary("sdl_image");
+        	System.loadLibrary("sdl_ttf");
+        	System.loadLibrary("sdl_mixer");
+			System.loadLibrary("python2.7");
+			System.loadLibrary("pymodules");
+        	System.loadLibrary("application");
+        	System.loadLibrary("sdl_main");
+			Log.i("python", "libraries loaded");
+		} catch(UnsatisfiedLinkError e) {
+			Log.i("python", "failed loading libraries");
+			toastError("Error 28.");
+		}
 
         try {
-	    System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_io.so");
+	    	System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_io.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/unicodedata.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imaging.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imagingft.so");
             System.load(getFilesDir() + "/lib/python2.7/lib-dynload/_imagingmath.so");
         } catch(UnsatisfiedLinkError e) {
-
         }
 
         if ( mAudioThread == null ) {
@@ -236,10 +239,10 @@ public class PythonActivity extends Activity implements Runnable {
         }
 
         runOnUiThread(new Runnable () {
-                public void run() {
-                    mView.start();
-                }
-            });
+        	public void run() {
+            	mView.start();
+            }
+        });
     }
 
     @Override
@@ -264,73 +267,60 @@ public class PythonActivity extends Activity implements Runnable {
 
         if (mView != null) {
             mView.onStart();
-	if (android.os.Build.VERSION.SDK_INT>=19){
-	    mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
-		SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-		SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-	}
+			if (android.os.Build.VERSION.SDK_INT>=19){
+	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
+				SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+				SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+			}
         }
     }
-
-
-/*
-    @Override
-    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
-	if (!isInMultiWindowMode){
-		//this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		if (android.os.Build.VERSION.SDK_INT>=19){
-	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
-			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-		}
-	//}
-
-        } else if (android.os.Build.VERSION.SDK_INT>=19){
-	    		mView.setSystemUiVisibility(SDLSurfaceView.SYSTEM_UI_FLAG_FULLSCREEN |
-			SDLSurfaceView.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-			SDLSurfaceView.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-	}
-    }
-*/
-
 
     public boolean isPaused() {
         return _isPaused;
     }
-/*
-    @Override
-    public boolean onKeyDown(int keyCode, final KeyEvent event) {
-        //Log.i("python", "key2 " + mView + " " + mView.mStarted);
-        if (mView != null && mView.mStarted && SDLSurfaceView.nativeKey(keyCode, 1, event.getUnicodeChar())) {
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
 
-    @Override
-    public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        //Log.i("python", "key up " + mView + " " + mView.mStarted);
-        if (mView != null && mView.mStarted && SDLSurfaceView.nativeKey(keyCode, 0, event.getUnicodeChar())) {
-            return true;
-        } else {
-            return super.onKeyUp(keyCode, event);
-        }
-    }
+	public void openFile() {
+    	Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+    	intent.addCategory(Intent.CATEGORY_OPENABLE);
+    	intent.setType("text/plain");
+    	startActivityForResult(intent, PICK_TXT_FILE);
+	}
 
-    @Override
-    public boolean dispatchTouchEvent(final MotionEvent ev) {
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+    	if (requestCode == PICK_TXT_FILE && resultCode == Activity.RESULT_OK) {
+        	Uri uri = null;
+        	if (data != null) {
+            	uri = data.getData();
+            	fileUriString = uri.toString(); // Store the URI string
+            
+            	// Read the contents of the file
+            	StringBuilder fileContent = new StringBuilder();
+            	try (InputStream inputStream = getContentResolver().openInputStream(uri);
+                 	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                		String line;
+                		while ((line = reader.readLine()) != null) {
+                    		fileContent.append(line).append('\n');
+                		}
+            	} catch (IOException e) {
+                	e.printStackTrace();
+            	}
 
-        if (mView != null){
-            mView.onTouchEvent(ev);
-            return true;
-        } else {
-Log.i("python", "touch, but not ready");
-return true;
-            //return super.dispatchTouchEvent(ev);
-        }
-    }
-*/
+            	// Store the file contents in a variable
+            	fileContentString = fileContent.toString();
+        	}
+    	}
+	}
+
+	public String getFileContentString() {
+    	return fileContentString;
+	}
+
+	public void resetFileContentString() {
+    	fileContentString = null;
+	}
+
 	protected void onDestroy() {
 		if (mView != null) {
 			mView.onDestroy();
