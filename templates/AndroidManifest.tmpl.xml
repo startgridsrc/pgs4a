@@ -19,6 +19,7 @@
 	       android:fullBackupContent="@xml/backup"
            android:dataExtractionRules="@xml/backup_new"
 		android:resizeableActivity="true"
+		android:appCategory="game"
                >
 
     <activity android:name="org.renpy.android.PythonActivity"
@@ -68,7 +69,7 @@
         android:resource="@xml/file_paths" />
   </provider>
 
-  <meta-data android:name="android.max_aspect" android:value="2.5" />
+  <meta-data android:name="android.max_aspect" android:value="3.0" />
 
   </application>
 
