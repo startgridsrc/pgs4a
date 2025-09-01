@@ -1,8 +1,8 @@
 # pgs4a
-A slightly modified version of the deprecated Pygame Subset for Android. It's an easy way to port your Pygame (v1.9.1 on Python 2.7) to your android devices. It builds an APK using an android SDK and installs it on your device.
+A slightly modified version of the deprecated Pygame Subset for Android. It was easy way to port your Pygame (v1.9.1 on Python 2.7) to your android devices. It builds an APK using the android SDK and installs it on your device.
 Pgs4a was made by Tom Rothamel, Patrick Dawson and others, using Kivy's *python-for-android* packager to make Pygame games run on android.
 He developed pgs4a until 2013 until he moved on with his other projects.
-Meanwhile, I made a couple of edits to pgs4a to keep it working nicely in the constantly evolving android environment. Note that this repo still depends on outdated versions of libraries, like Python 2.7. Python 3 is not supported. App bundles for google play are not supported. If this doesn't suit your needs you may want to look into a different project like [python-for-android](https://github.com/kivy/python-for-android) instead.
+Meanwhile, I made a couple of edits to pgs4a to keep it working nicely in the constantly evolving android environment. Note that this repo depends on outdated versions of libraries, like Python 2.7. Python 3 is not supported; app bundles for google play are also not supported. For up-to-date libraries you may want to look into different projects like [python-for-android](https://github.com/kivy/python-for-android) instead.
 
 # Changelog
 
@@ -19,8 +19,8 @@ Meanwhile, I made a couple of edits to pgs4a to keep it working nicely in the co
 * autobackup via google, for specified files (api 23+, see */res/xml*)
 * resizeable activity (api 24+)
 * adaptive icon (api 26+)
-* additional 64-bit libraries
-* can build APKs that run on devices up to API 33 (android 12), although no app bundles are created (so no uploading to google play)
+* additional 64-bit libraries, with 16kB page size memory support
+* can build APKs that run on devices up to API 35 (android 12), although no app bundles are created (so no uploading to google play)
 
 The shared libraries in the *libs* folder are built by the [rapt](https://github.com/startgridsrc/rapt) toolchain. This toolchain actually builds an entire pgs4a distribution, like this repository, but it's not as up to date as this repository. The shared libraries (.so files) of the other rapt repository are simply copied into this (newer) repository. 
 
