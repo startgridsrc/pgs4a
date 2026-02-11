@@ -1,0 +1,75 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class NumGuessGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("NumGuess - Number Guessing Game")
+        self.root.geometry("400x400")
+        self.root.config(bg="#222831")
+
+        # Game variables
+        self.secret_number = random.randint(1, 10)
+        self.attempts = 0
+
+        # Title
+        self.title_label = tk.Label(root, text="🎯 NumGuess 🎯", font=("Arial", 22, "bold"), fg="#FFD369", bg="#222831")
+        self.title_label.pack(pady=15)
+
+        # Instruction
+        self.instruction = tk.Label(root, text="Guess a number between 1 and 10", font=("Arial", 14), fg="white", bg="#222831")
+        self.instruction.pack(pady=5)
+
+        # Entry box
+        self.entry = tk.Entry(root, font=("Arial", 14), justify="center", bg="#393E46", fg="white", relief="flat")
+        self.entry.pack(pady=10, ipady=5)
+
+        # Submit button
+        self.submit_btn = tk.Button(root, text="Submit Guess", font=("Arial", 12, "bold"), bg="#00ADB5", fg="white", relief="flat", command=self.check_guess)
+        self.submit_btn.pack(pady=10, ipadx=10, ipady=5)
+
+        # Attempts label
+        self.attempts_label = tk.Label(root, text="Attempts: 0", font=("Arial", 12), fg="#EEEEEE", bg="#222831")
+        self.attempts_label.pack(pady=5)
+
+        # Restart button
+        self.restart_btn = tk.Button(root, text="Restart Game", font=("Arial", 12, "bold"), bg="#FF5722", fg="white", relief="flat", command=self.restart_game)
+        self.restart_btn.pack(pady=15, ipadx=10, ipady=5)
+
+    def check_guess(self):
+        try:
+            guess = int(self.entry.get())
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter a valid number between 1 and 10.")
+            return
+
+        if guess < 1 or guess > 10:
+            messagebox.showwarning("Out of Range", "Your guess must be between 1 and 10!")
+            return
+
+        self.attempts += 1
+        self.attempts_label.config(text=f"Attempts: {self.attempts}")
+
+        if guess == self.secret_number:
+            messagebox.showinfo("🎉 Congratulations!", f"You guessed it right in {self.attempts} attempts!\nThe number was {self.secret_number}.")
+            self.restart_game()
+        elif guess < self.secret_number:
+            messagebox.showinfo("Hint 🔼", "Try a higher number!")
+        else:
+            messagebox.showinfo("Hint 🔽", "Try a lower number!")
+
+        self.entry.delete(0, tk.END)
+
+    def restart_game(self):
+        self.secret_number = random.randint(1, 10)
+        self.attempts = 0
+        self.attempts_label.config(text="Attempts: 0")
+        self.entry.delete(0, tk.END)
+
+
+# Run the game
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = NumGuessGame(root)
+    root.mainloop()
